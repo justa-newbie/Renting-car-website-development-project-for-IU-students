@@ -1,33 +1,57 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Lock, Mail, Phone, User } from 'lucide-react'
+import { BadgePercent, Eye, EyeOff, Lock, Mail, Phone, ShieldCheck, User, Zap } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { Input } from '@/components/ui/Field'
-import CarImage from '@/components/CarImage'
+import { CarCutout, ShowroomBackdrop } from '@/components/Showroom'
+import { cx } from '@/lib/format'
 import Logo from '@/components/Logo'
 import { useDocTitle } from '@/components/Guards'
 import { useAuth } from '@/context/AuthContext'
 import { useI18n } from '@/context/I18nContext'
 import { useToast } from '@/context/ToastContext'
 
-function Shell({ title, subtitle, children, footer }) {
+function Shell({ car, title, subtitle, children, footer }) {
   const { t } = useI18n()
+  const perks = [
+    [Zap, t('Đặt xe trong 2 phút, xác nhận nhanh', 'Book in 2 minutes, fast confirmation')],
+    [BadgePercent, t('Giảm đến 15% cho sinh viên IU', 'Up to 15% off for IU students')],
+    [ShieldCheck, t('Giá minh bạch, hủy miễn phí trước 24 giờ', 'Clear prices, free cancellation up to 24h')],
+  ]
   return (
-    <div className="container-x py-10">
-      <div className="mx-auto grid max-w-5xl overflow-hidden rounded-[32px] border border-line bg-surface shadow-soft lg:grid-cols-2">
-        <div className="relative hidden flex-col justify-between bg-primary p-10 text-onprimary lg:flex">
-          <Logo className="[&_span]:!text-white [&>span:first-child]:!bg-white/20" />
-          <div>
-            <h2 className="text-3xl font-extrabold leading-tight">{t('Thuê xe nhanh, giá minh bạch.', 'Fast rentals, transparent prices.')}</h2>
-            <p className="mt-3 max-w-xs text-white/80">{t('Đăng nhập để đặt xe, theo dõi đơn thuê và nhận ưu đãi sinh viên.', 'Log in to book, track your rentals and unlock student deals.')}</p>
+    <div className="container-x py-8 lg:py-10">
+      <div className="animate-fade-up mx-auto grid max-w-6xl overflow-hidden rounded-[36px] border border-line bg-surface shadow-soft lg:grid-cols-[1.15fr_1fr]">
+        {/* Sân khấu bên trái (máy tính) */}
+        <div className="relative hidden min-h-[660px] flex-col overflow-hidden p-10 text-white lg:flex">
+          <ShowroomBackdrop ghostClass="top-[47%]" />
+          <div className="relative z-10">
+            <h2 className="max-w-md text-4xl font-extrabold leading-[1.15] tracking-tight">
+              {t('Thuê xe nhanh,', 'Fast rentals,')}<br /><span className="text-[#ff5f6a]">{t('giá minh bạch.', 'clear prices.')}</span>
+            </h2>
+            <ul className="mt-7 space-y-3">
+              {perks.map(([Icon, text]) => (
+                <li key={text} className="flex w-fit items-center gap-3 rounded-full border border-white/10 bg-white/10 py-2 pl-2 pr-5 text-sm font-medium backdrop-blur-md">
+                  <span className="grid size-8 place-items-center rounded-full bg-primary text-onprimary"><Icon className="size-4" /></span>{text}
+                </li>
+              ))}
+            </ul>
           </div>
-          <CarImage type="suv" color="white" className="w-full drop-shadow-2xl" />
+          <CarCutout car={car} className={cx('relative z-10 mx-auto mb-12 mt-auto', car === 'vf8' ? 'w-full' : 'w-[84%]')} />
         </div>
-        <div className="p-6 sm:p-10">
-          <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
-          <p className="mt-1.5 text-sm text-muted">{subtitle}</p>
-          <div className="mt-7">{children}</div>
-          <p className="mt-6 text-center text-sm text-muted">{footer}</p>
+
+        <div className="flex flex-col">
+          {/* Sân khấu thu gọn (điện thoại) */}
+          <div className="relative overflow-hidden px-8 pb-6 pt-5 lg:hidden">
+            <ShowroomBackdrop ghostClass="top-6" />
+            <CarCutout car={car} className="relative z-10 mx-auto w-full max-w-[300px]" />
+          </div>
+          <div className="my-auto p-6 sm:p-10">
+            <div className="mb-7 hidden lg:block"><Logo /></div>
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h1>
+            <p className="mt-2 text-sm text-muted">{subtitle}</p>
+            <div className="mt-7">{children}</div>
+            <p className="mt-6 text-center text-sm text-muted">{footer}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -77,7 +101,7 @@ export function Login() {
   const fill = (email, password) => setF({ email, password })
 
   return (
-    <Shell title={t('Đăng nhập', 'Log in')} subtitle={t('Chào mừng bạn quay lại IUDrive.', 'Welcome back to IUDrive.')} footer={<>{t('Chưa có tài khoản?', 'No account yet?')} <Link to="/register" className="font-bold text-primary hover:underline">{t('Đăng ký ngay', 'Sign up')}</Link></>}>
+    <Shell car="vf8" title={t('Đăng nhập', 'Log in')} subtitle={t('Chào mừng bạn quay lại IUDrive.', 'Welcome back to IUDrive.')} footer={<>{t('Chưa có tài khoản?', 'No account yet?')} <Link to="/register" className="font-bold text-primary hover:underline">{t('Đăng ký ngay', 'Sign up')}</Link></>}>
       <form onSubmit={submit} className="space-y-4" noValidate>
         <Input label="Email" icon={Mail} type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} error={err.email} />
         <PasswordInput label={t('Mật khẩu', 'Password')} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} error={err.password} />
@@ -122,7 +146,7 @@ export function Register() {
   }
 
   return (
-    <Shell title={t('Tạo tài khoản', 'Create account')} subtitle={t('Đăng ký miễn phí và nhận mã giảm giá cho lần thuê đầu tiên.', 'Sign up free and get a promo for your first rental.')} footer={<>{t('Đã có tài khoản?', 'Already have an account?')} <Link to="/login" className="font-bold text-primary hover:underline">{t('Đăng nhập', 'Log in')}</Link></>}>
+    <Shell car="fortuner" title={t('Tạo tài khoản', 'Create account')} subtitle={t('Đăng ký miễn phí và nhận mã giảm giá cho lần thuê đầu tiên.', 'Sign up free and get a promo for your first rental.')} footer={<>{t('Đã có tài khoản?', 'Already have an account?')} <Link to="/login" className="font-bold text-primary hover:underline">{t('Đăng nhập', 'Log in')}</Link></>}>
       <form onSubmit={submit} className="space-y-4" noValidate>
         <Input label={t('Họ và tên', 'Full name')} icon={User} value={f.name} onChange={set('name')} error={err.name} autoComplete="name" />
         <div className="grid gap-4 sm:grid-cols-2">

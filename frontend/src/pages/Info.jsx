@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronDown, Clock, Handshake, Mail, MapPin, Phone, Send, Target, Users2, Award, Heart } from 'lucide-react'
+import { ChevronDown, Clock, Handshake, Mail, MapPin, Phone, Send, Target, Award, Heart, ArrowRight } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Field'
 import { SectionTitle } from '@/components/ui/misc'
@@ -12,7 +12,8 @@ import { CONTACT } from '@/data/constants'
 import imageCredits from '@/data/imageCredits.json'
 import { useStore } from '@/context/StoreContext'
 import { FAQS } from '@/data/content'
-import { cx } from '@/lib/format'
+import { cx, initials } from '@/lib/format'
+import { CarCutout, CountUp, ShowroomBackdrop } from '@/components/Showroom'
 
 export function About() {
   const { t } = useI18n()
@@ -29,47 +30,77 @@ export function About() {
     ['Bạn (Frontend)', t('Frontend / UI-UX', 'Frontend / UI-UX')],
     ['Lê Thị Hạnh', t('Kiểm thử / Tài liệu', 'QA / Docs')],
   ]
+  const stats = [
+    [24, 0, '+', t('Dòng xe', 'Vehicles')],
+    [4, 0, '', t('Thành phố', 'Cities')],
+    [12.5, 1, 'K+', t('Khách hàng', 'Customers')],
+    [4.9, 1, '/5', t('Đánh giá', 'Rating')],
+  ]
   return (
-    <div className="container-x py-12">
-      <section className="grid items-center gap-10 lg:grid-cols-2">
-        <div>
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">{t('Về chúng tôi', 'About us')}</p>
-          <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{t('Tiên phong thuê xe thông minh cho sinh viên', 'Pioneering smart car rental for students')}</h1>
-          <p className="mt-5 leading-relaxed text-muted">{t('IUDrive bắt đầu từ một đồ án của sinh viên Đại học Quốc tế với mong muốn giải quyết bài toán đi lại: thuê xe nhanh, giá rõ ràng, không phải gọi hỏi nhiều nơi. Từ xe 4 chỗ cho nhóm bạn đến xe 45 chỗ cho cả lớp đi tham quan, chúng tôi có đủ.', 'IUDrive started as a course project by International University students to solve a simple problem: rent a car fast, with clear prices and no endless phone calls. From 4-seaters for friends to 45-seaters for a whole class trip, we have it all.')}</p>
-          <div className="mt-7 flex gap-3"><Button as={Link} to="/cars">{t('Khám phá đội xe', 'Explore the fleet')}</Button><Button as={Link} to="/contact" variant="outline">{t('Liên hệ', 'Contact')}</Button></div>
-        </div>
-        <div className="rounded-[32px] bg-gradient-to-br from-primary-soft to-surface2 p-8">
-          <CarImage type="sedan" color="red" className="w-full drop-shadow-2xl" />
-        </div>
-      </section>
-
-      <section className="mt-20">
-        <SectionTitle eyebrow={t('Giá trị cốt lõi', 'Core values')} title={t('Điều chúng tôi theo đuổi', 'What we stand for')} />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {values.map((v) => (
-            <div key={v.title} className="rounded-3xl border border-line bg-surface p-6">
-              <span className="grid size-12 place-items-center rounded-2xl bg-primary-soft text-primary"><v.icon className="size-6" /></span>
-              <h3 className="mt-4 text-lg font-bold">{v.title}</h3><p className="mt-1.5 text-sm text-muted">{v.text}</p>
+    <div className="container-x py-8 lg:py-10">
+      {/* Banner showroom */}
+      <section className="relative overflow-hidden rounded-[40px] text-white shadow-[0_40px_80px_-35px_rgba(229,35,47,0.5)]">
+        <ShowroomBackdrop ghost="ABOUT US" ghostClass="top-6" />
+        <div className="relative z-10 grid items-center gap-8 p-7 pb-16 sm:p-12 sm:pb-20 lg:grid-cols-[1fr_1.05fr]">
+          <div className="animate-fade-up">
+            <p className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#ff8a92] backdrop-blur">{t('Về chúng tôi', 'About us')}</p>
+            <h1 className="mt-5 text-4xl font-extrabold leading-[1.15] tracking-tight sm:text-5xl">{t('Tiên phong thuê xe thông minh', 'Pioneering smart car rental')} <span className="block text-[#ff5f6a]">{t('cho sinh viên', 'for students')}</span></h1>
+            <p className="mt-5 max-w-xl leading-relaxed text-white/75">{t('IUDrive bắt đầu từ một đồ án của sinh viên Đại học Quốc tế với mong muốn giải quyết bài toán đi lại: thuê xe nhanh, giá rõ ràng, không phải gọi hỏi nhiều nơi. Từ xe 4 chỗ cho nhóm bạn đến xe 45 chỗ cho cả lớp đi tham quan, chúng tôi có đủ.', 'IUDrive started as a course project by International University students to solve a simple problem: rent a car fast, with clear prices and no endless phone calls. From 4-seaters for friends to 45-seaters for a whole class trip, we have it all.')}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button as={Link} to="/cars" size="lg">{t('Khám phá đội xe', 'Explore the fleet')}</Button>
+              <Button as={Link} to="/contact" size="lg" className="!bg-white/10 !shadow-none backdrop-blur hover:!bg-white/20">{t('Liên hệ', 'Contact')}</Button>
             </div>
-          ))}
+          </div>
+          <CarCutout car="carnival" alt="Kia Carnival" className="mx-auto w-full max-w-[560px]" />
         </div>
       </section>
 
-      <section className="mt-20 grid gap-4 rounded-[32px] bg-fg p-8 text-bg sm:grid-cols-2 lg:grid-cols-4">
-        {[['24+', t('Dòng xe', 'Vehicles')], ['4', t('Thành phố', 'Cities')], ['12.5K+', t('Khách hàng', 'Customers')], ['4.9/5', t('Đánh giá', 'Rating')]].map(([n, l]) => (
-          <div key={l} className="text-center"><p className="text-4xl font-extrabold">{n}</p><p className="mt-1 text-sm opacity-70">{l}</p></div>
+      {/* Số liệu: thẻ nổi đè lên banner */}
+      <section className="relative z-20 mx-auto -mt-9 grid max-w-5xl grid-cols-2 gap-y-6 rounded-[28px] border border-line bg-surface p-6 shadow-soft lg:grid-cols-4">
+        {stats.map(([n, dec, suffix, label]) => (
+          <div key={label} className="text-center lg:border-l lg:border-line lg:first:border-l-0">
+            <p className="text-4xl font-extrabold tracking-tight text-primary"><CountUp to={n} decimals={dec} suffix={suffix} /></p>
+            <p className="mt-1 text-sm text-muted">{label}</p>
+          </div>
         ))}
       </section>
 
-      <section className="mt-20">
+      <section className="mt-24">
+        <SectionTitle eyebrow={t('Giá trị cốt lõi', 'Core values')} title={t('Điều chúng tôi theo đuổi', 'What we stand for')} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {values.map((v, i) => (
+            <div key={v.title} className="group relative overflow-hidden rounded-3xl border border-line bg-surface p-6 transition duration-300 hover:-translate-y-2 hover:border-primary hover:shadow-[0_24px_50px_-24px_var(--primary)]">
+              <span className="absolute -right-2 -top-5 text-8xl font-extrabold text-fg/[0.04] transition group-hover:text-primary/10">0{i + 1}</span>
+              <span className="grid size-14 place-items-center rounded-2xl bg-primary-soft text-primary transition duration-300 group-hover:rotate-[-8deg] group-hover:bg-primary group-hover:text-onprimary"><v.icon className="size-6" /></span>
+              <h3 className="mt-5 text-lg font-bold">{v.title}</h3><p className="mt-2 text-sm leading-relaxed text-muted">{v.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-24">
         <SectionTitle eyebrow={t('Đội ngũ', 'Team')} title={t('Những người xây dựng IUDrive', 'The people behind IUDrive')} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {team.map(([n, r]) => (
-            <div key={n} className="rounded-3xl border border-line bg-surface p-6 text-center">
-              <span className="mx-auto grid size-20 place-items-center rounded-full bg-primary text-2xl font-extrabold text-onprimary"><Users2 className="size-8" /></span>
-              <p className="mt-4 font-bold">{n}</p><p className="text-sm text-muted">{r}</p>
+            <div key={n} className="group overflow-hidden rounded-3xl border border-line bg-surface text-center transition duration-300 hover:-translate-y-2 hover:shadow-soft">
+              <div className="relative h-24 overflow-hidden"><ShowroomBackdrop ghost="" /></div>
+              <span className="relative mx-auto -mt-12 grid size-24 place-items-center rounded-full border-4 border-surface bg-gradient-to-br from-[#ff5f6a] to-[#a3101b] text-2xl font-extrabold text-white transition duration-300 group-hover:scale-105">{initials(n.replace(/\(.*\)/, '').trim() || n)}</span>
+              <div className="px-5 pb-6 pt-3"><p className="font-bold">{n}</p><p className="mt-0.5 text-sm text-muted">{r}</p></div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Kêu gọi hành động */}
+      <section className="relative mt-24 overflow-hidden rounded-[40px] text-white">
+        <ShowroomBackdrop ghost="LET'S GO" ghostClass="top-4" />
+        <div className="relative z-10 grid items-center gap-6 p-7 pb-12 sm:p-12 lg:grid-cols-[1.1fr_1fr]">
+          <CarCutout car="fortuner" alt="Toyota Fortuner" className="order-2 mx-auto w-full max-w-[440px] lg:order-1" />
+          <div className="order-1 lg:order-2">
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t('Sẵn sàng cho chuyến đi tiếp theo?', 'Ready for your next trip?')}</h2>
+            <p className="mt-3 text-white/75">{t('Chọn chiếc xe hợp ý và đặt lịch ngay hôm nay.', 'Pick the car you like and book today.')}</p>
+            <Button as={Link} to="/cars" size="lg" className="mt-6">{t('Thuê xe ngay', 'Rent now')}<ArrowRight className="size-4" /></Button>
+          </div>
         </div>
       </section>
     </div>

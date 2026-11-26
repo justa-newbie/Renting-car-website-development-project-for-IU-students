@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, BadgePercent, CalendarCheck, CarFront, ChevronDown, Clock, Copy, Headset, KeyRound, MapPinned, ShieldCheck, Star, Wallet } from 'lucide-react'
 import Button from '@/components/ui/Button'
@@ -7,6 +7,7 @@ import CarImage from '@/components/CarImage'
 import CarCard from '@/components/CarCard'
 import SearchBar from '@/components/SearchBar'
 import HeroShowcase from '@/components/HeroShowcase'
+import { CountUp } from '@/components/Showroom'
 import { useDocTitle } from '@/components/Guards'
 import { useI18n } from '@/context/I18nContext'
 import { useStore } from '@/context/StoreContext'
@@ -14,24 +15,6 @@ import { useToast } from '@/context/ToastContext'
 import { BRANDS, SEAT_GROUPS } from '@/data/constants'
 import { FAQS, TESTIMONIALS } from '@/data/content'
 import { cx, fmtDate, money, moneyShort, seatGroup } from '@/lib/format'
-
-// Số đếm tăng dần khi vào trang
-function CountUp({ to, decimals = 0, suffix = '', ms = 1400 }) {
-  const [v, setV] = useState(0)
-  useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { setV(to); return }
-    let raf
-    const t0 = performance.now()
-    const tick = (now) => {
-      const p = Math.min(1, (now - t0) / ms)
-      setV(to * (1 - Math.pow(1 - p, 3)))
-      if (p < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [to, ms])
-  return <>{v.toFixed(decimals)}{suffix}</>
-}
 
 export default function Home() {
   const { t, l, lang } = useI18n()
