@@ -46,7 +46,7 @@ Hiện tại dữ liệu là **mock**, lưu trong `localStorage` (khóa `rc_db_v
 
 `vite.config.js` đã cấu hình proxy `/api` tới `http://localhost:8080`, nên khi dev không bị lỗi CORS.
 
-Gợi ý API cần thống nhất với BE: `GET /api/cars`, `GET /api/cars/{id}`, `POST /api/bookings`, `GET /api/bookings/me`, `POST /api/auth/login`, `POST /api/auth/register`, và nhóm `/api/admin/**`.
+Danh sách API, mô hình dữ liệu và quy tắc nghiệp vụ: xem [`docs/API.md`](docs/API.md). Lớp gọi API đã viết sẵn ở `src/services/` (`http.js`, `api.js`) nhưng **chưa nối vào giao diện**: khi BE xong cần cho `StoreContext`/`AuthContext` gọi các hàm này và thêm trạng thái đang tải/lỗi cho các trang.
 
 ## Ghi chú
 
