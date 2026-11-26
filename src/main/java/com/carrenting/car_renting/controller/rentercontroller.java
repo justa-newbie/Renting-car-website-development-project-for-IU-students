@@ -2,9 +2,9 @@ package com.carrenting.car_renting.controller;
 
 import com.carrenting.car_renting.dao.renterdao;
 import com.carrenting.car_renting.model.renter;
+import com.carrenting.car_renting.util.passwordutil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,11 +14,11 @@ import java.util.List;
 public class rentercontroller {
 
     private final renterdao renterDao;
-    private final PasswordEncoder passwordEncoder;
+    private final passwordutil passwordUtil;
 
-    public rentercontroller(renterdao renterDao, PasswordEncoder passwordEncoder) {
+    public rentercontroller(renterdao renterDao, passwordutil passwordUtil) {
         this.renterDao = renterDao;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordUtil = passwordUtil;
     }
 
     @GetMapping
@@ -35,7 +35,7 @@ public class rentercontroller {
 
     @PostMapping
     public ResponseEntity<renter> createRenter(@RequestBody renter newRenter) {
-        newRenter.setPasswordHash(passwordEncoder.encode(newRenter.getPasswordHash()));
+        newRenter.setPasswordHash(passwordUtil.hashPassword(newRenter.getPasswordHash()));
         renter saved = renterDao.save(newRenter);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }

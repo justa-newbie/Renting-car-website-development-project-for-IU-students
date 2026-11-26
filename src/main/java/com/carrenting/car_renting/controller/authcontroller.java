@@ -4,12 +4,15 @@ import com.carrenting.car_renting.dao.userdao;
 import com.carrenting.car_renting.filter.authfilter;
 import com.carrenting.car_renting.model.admin;
 import com.carrenting.car_renting.model.user;
+import com.carrenting.car_renting.util.cookieutil;
+import com.carrenting.car_renting.util.logintracker;
+import com.carrenting.car_renting.util.passwordutil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,18 +22,29 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class authcontroller {
 
-    private final userdao userDao;
-    private final PasswordEncoder passwordEncoder;
+    private static final String AUTH_ROLE_COOKIE = "AUTH_ROLE";
 
-    public authcontroller(userdao userDao, PasswordEncoder passwordEncoder) {
+    private final userdao userDao;
+    private final passwordutil passwordUtil;
+    private final logintracker loginTracker;
+    private final cookieutil cookieUtil;
+
+    public authcontroller(
+            userdao userDao,
+            passwordutil passwordUtil,
+            logintracker loginTracker,
+            cookieutil cookieUtil) {
         this.userDao = userDao;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordUtil = passwordUtil;
+        this.loginTracker = loginTracker;
+        this.cookieUtil = cookieUtil;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @RequestBody Map<String, String> credentials,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         String email = credentials.get("email");
         String password = credentials.get("password");
@@ -39,10 +53,19 @@ public class authcontroller {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required."));
         }
 
+        if (loginTracker.isBlocked(email)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "Too many failed login attempts. Try again later."));
+        }
+
         user foundUser = userDao.findByEmail(email).orElse(null);
-        if (foundUser == null || !passwordEncoder.matches(password, foundUser.getPasswordHash())) {
+        if (foundUser == null || !passwordUtil.matches(password, foundUser.getPasswordHash())) {
+            loginTracker.recordFailure(email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid email or password."));
+                    .body(Map.of(
+                            "error", "Invalid email or password.",
+                            "remainingAttempts", loginTracker.getRemainingAttempts(email)
+                    ));
         }
 
         if (!foundUser.isActive()) {
@@ -50,6 +73,7 @@ public class authcontroller {
                     .body(Map.of("error", "Account is deactivated."));
         }
 
+        loginTracker.recordSuccess(email);
         foundUser.setLastLogin(LocalDateTime.now());
         userDao.save(foundUser);
 
@@ -59,6 +83,8 @@ public class authcontroller {
         session.setAttribute(authfilter.SESSION_USER_ID, foundUser.getUserId());
         session.setAttribute(authfilter.SESSION_USER_EMAIL, foundUser.getEmail());
         session.setAttribute(authfilter.SESSION_USER_ROLE, resolvedRole);
+
+        cookieUtil.addCookie(response, AUTH_ROLE_COOKIE, resolvedRole, 3600, true);
 
         return ResponseEntity.ok(Map.of(
                 "message", "Login successful",
@@ -70,12 +96,13 @@ public class authcontroller {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
         SecurityContextHolder.clearContext();
+        cookieUtil.deleteCookie(response, AUTH_ROLE_COOKIE);
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 

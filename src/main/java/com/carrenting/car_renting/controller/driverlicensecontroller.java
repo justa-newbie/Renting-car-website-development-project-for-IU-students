@@ -6,6 +6,7 @@ import com.carrenting.car_renting.dao.renterdao;
 import com.carrenting.car_renting.model.admin;
 import com.carrenting.car_renting.model.driverlicense;
 import com.carrenting.car_renting.model.renter;
+import com.carrenting.car_renting.util.auditlogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,17 @@ public class driverlicensecontroller {
     private final driverlicensedao licenseDao;
     private final renterdao renterDao;
     private final admindao adminDao;
+    private final auditlogger auditLogger;
 
-    public driverlicensecontroller(driverlicensedao licenseDao, renterdao renterDao, admindao adminDao) {
+    public driverlicensecontroller(
+            driverlicensedao licenseDao,
+            renterdao renterDao,
+            admindao adminDao,
+            auditlogger auditLogger) {
         this.licenseDao = licenseDao;
         this.renterDao = renterDao;
         this.adminDao = adminDao;
+        this.auditLogger = auditLogger;
     }
 
     @GetMapping
@@ -80,7 +87,10 @@ public class driverlicensecontroller {
             license.setVerifiedBy(verifier);
         }
         license.setVerificationStatus(status);
-        return ResponseEntity.ok(licenseDao.save(license));
+        driverlicense saved = licenseDao.save(license);
+        auditLogger.logCurrentAdmin("VERIFY_LICENSE", "DRIVER_LICENSE", String.valueOf(id),
+                "Set verificationStatus=" + status);
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
