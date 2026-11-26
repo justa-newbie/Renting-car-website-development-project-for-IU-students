@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, BadgePercent, CalendarCheck, CarFront, ChevronDown, Clock, Copy, Headset, KeyRound, MapPinned, ShieldCheck, Star, Wallet } from 'lucide-react'
 import Button from '@/components/ui/Button'
@@ -6,6 +6,7 @@ import { SectionTitle } from '@/components/ui/misc'
 import CarImage from '@/components/CarImage'
 import CarCard from '@/components/CarCard'
 import SearchBar from '@/components/SearchBar'
+import HeroShowcase from '@/components/HeroShowcase'
 import { useDocTitle } from '@/components/Guards'
 import { useI18n } from '@/context/I18nContext'
 import { useStore } from '@/context/StoreContext'
@@ -13,6 +14,24 @@ import { useToast } from '@/context/ToastContext'
 import { BRANDS, SEAT_GROUPS } from '@/data/constants'
 import { FAQS, TESTIMONIALS } from '@/data/content'
 import { cx, fmtDate, money, moneyShort, seatGroup } from '@/lib/format'
+
+// Số đếm tăng dần khi vào trang
+function CountUp({ to, decimals = 0, suffix = '', ms = 1400 }) {
+  const [v, setV] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { setV(to); return }
+    let raf
+    const t0 = performance.now()
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / ms)
+      setV(to * (1 - Math.pow(1 - p, 3)))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [to, ms])
+  return <>{v.toFixed(decimals)}{suffix}</>
+}
 
 export default function Home() {
   const { t, l, lang } = useI18n()
@@ -68,29 +87,16 @@ export default function Home() {
               <Button as={Link} to="/about" variant="outline" size="lg">{t('Tìm hiểu thêm', 'Learn more')}</Button>
             </div>
             <div className="mt-9 flex gap-8">
-              {[[`${cars.length}+`, t('Dòng xe', 'Vehicles')], ['12.5K+', t('Khách hàng', 'Customers')], ['30K+', t('Chuyến đi', 'Trips')]].map(([n, label]) => (
+              {[[cars.length, 0, '+', t('Dòng xe', 'Vehicles')], [12.5, 1, 'K+', t('Khách hàng', 'Customers')], [30, 0, 'K+', t('Chuyến đi', 'Trips')]].map(([n, dec, suffix, label]) => (
                 <div key={label}>
-                  <p className="text-2xl font-extrabold">{n}</p>
+                  <p className="text-2xl font-extrabold"><CountUp to={n} decimals={dec} suffix={suffix} /></p>
                   <p className="text-sm text-muted">{label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative">
-            <p className="ghost-text pointer-events-none absolute inset-x-0 -top-6 select-none overflow-hidden text-center text-[20vw] font-extrabold leading-none lg:text-[8.5rem]">IUDRIVE</p>
-            <div className="animate-float relative">
-              <CarImage type="suv" color="red" className="relative mx-auto w-full max-w-[640px] drop-shadow-[0_30px_30px_rgba(0,0,0,0.3)]" />
-            </div>
-            <div className="absolute right-0 top-4 hidden rounded-2xl border border-line bg-surface/90 p-3.5 shadow-soft backdrop-blur sm:block">
-              <p className="text-2xl font-extrabold">50+</p>
-              <p className="text-xs text-muted">{t('Loại xe có sẵn', 'Car types available')}</p>
-            </div>
-            <div className="absolute bottom-2 left-0 hidden items-center gap-3 rounded-2xl border border-line bg-surface/90 p-3 shadow-soft backdrop-blur sm:flex">
-              <span className="grid size-10 place-items-center rounded-full bg-amber-400/20 text-amber-500"><Star className="size-5 fill-current" /></span>
-              <div><p className="text-sm font-bold">4.9 / 5</p><p className="text-xs text-muted">{t('2.300+ đánh giá', '2,300+ reviews')}</p></div>
-            </div>
-          </div>
+          <HeroShowcase />
         </div>
 
         <div className="container-x relative z-10 -mt-2 pb-2"><SearchBar /></div>

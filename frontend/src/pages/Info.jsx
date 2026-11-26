@@ -178,9 +178,10 @@ export function Credits() {
             <tbody className="divide-y divide-line">
               {rows.map(([id, c]) => {
                 const car = cars.find((x) => x.id === id)
+                const hero = id.startsWith('hero_')
                 return (
                   <tr key={id}>
-                    <td className="px-4 py-3 font-semibold">{car ? `${car.brand} ${car.model}` : id}</td>
+                    <td className="px-4 py-3 font-semibold">{hero ? `${t('Banner', 'Banner')}: ${c.file.split(/[ .]/).slice(0, 3).join(' ')}` : car ? `${car.brand} ${car.model}` : id}{c.edited && <span className="ml-2 rounded-full bg-surface2 px-2 py-0.5 text-[11px] font-medium text-muted">{t('đã tách nền', 'background removed')}</span>}</td>
                     <td className="px-4 py-3">{c.artist}</td>
                     <td className="px-4 py-3">{c.license}</td>
                     <td className="px-4 py-3"><a href={c.page} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">Wikimedia Commons</a></td>

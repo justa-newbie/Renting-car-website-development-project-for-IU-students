@@ -37,7 +37,7 @@ const WHEELS = {
 const RADIUS = { sedan: 24, suv: 26, mpv: 25, van: 25, minibus: 25, bus: 25 }
 
 /** Ảnh xe vẽ bằng SVG (không cần tải ảnh ngoài). type = sedan | suv | mpv | van | minibus | bus */
-export default function CarImage({ src, type = 'sedan', color = 'red', className = '', flip = false }) {
+export default function CarImage({ src, type = 'sedan', color = 'red', className = '', flip = false, eager = false }) {
   const id = useId().replace(/:/g, '')
   const [failed, setFailed] = useState(false)
   useEffect(() => setFailed(false), [src])
@@ -46,7 +46,7 @@ export default function CarImage({ src, type = 'sedan', color = 'red', className
   if (src && !failed) {
     // Ảnh thật: bỏ giới hạn max-w và đổ bóng của hình vẽ, cắt đều tỷ lệ 16:10 cho đồng nhất
     const cls = className.replace(/drop-shadow\S*/g, '').replace(/max-w-\S+/g, '')
-    return <img src={src} alt={type} loading="lazy" onError={() => setFailed(true)} className={`${cls} aspect-[16/10] rounded-2xl object-cover`} style={flip ? { transform: 'scaleX(-1)' } : undefined} />
+    return <img src={src} alt={type} loading={eager ? 'eager' : 'lazy'} onError={() => setFailed(true)} className={`${cls} aspect-[16/10] rounded-2xl object-cover`} style={flip ? { transform: 'scaleX(-1)' } : undefined} />
   }
   const hex = COLORS.find((c) => c.id === color)?.hex || color
   const light = shade(hex, 36), dark = shade(hex, -42), edge = shade(hex, -70)

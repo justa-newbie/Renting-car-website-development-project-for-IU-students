@@ -142,5 +142,26 @@
   "artist": "Ki hoon",
   "license": "CC BY-SA 4.0",
   "page": "https://commons.wikimedia.org/wiki/File%3AHyundai_New_Premium_Universe_Xpress_Noble_Front-Side.jpg"
+ },
+ "hero_vf8": {
+  "file": "VinFast VF 8 IAA 2023 1X7A0681.jpg",
+  "artist": "Alexander-93",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AVinFast_VF_8_IAA_2023_1X7A0681.jpg",
+  "edited": true
+ },
+ "hero_fortuner": {
+  "file": "Toyota Fortuner 4x4 Legender (LTD) 2-Tone White Pearl-Black.jpg",
+  "artist": "Captainmorlypogi1959",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AToyota_Fortuner_4x4_Legender_%28LTD%29_2-Tone_White_Pearl-Black.jpg",
+  "edited": true
+ },
+ "hero_carnival": {
+  "file": "KIA CARNIVAL (YP) China.jpg",
+  "artist": "Dinkun Chen",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File%3AKIA_CARNIVAL_%28YP%29_China.jpg",
+  "edited": true
  }
 }
