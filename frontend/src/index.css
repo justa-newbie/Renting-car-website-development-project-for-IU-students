@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f5f5f8;
+  --surface: #ffffff;
+  --surface2: #f0f0f5;
+  --fg: #16161d;
+  --muted: #6b6b7b;
+  --line: #e4e4ec;
+  --primary: #e5232f;
+  --primary-hover: #c81b27;
+  --primary-soft: #fde9ea;
+  --on-primary: #ffffff;
+  --shadow: 0 1px 2px rgb(20 20 40 / 0.04), 0 10px 30px rgb(20 20 40 / 0.07);
+}
+
+.dark {
+  --bg: #0d0e13;
+  --surface: #16181f;
+  --surface2: #1f212a;
+  --fg: #f2f2f6;
+  --muted: #9b9bad;
+  --line: #2a2c37;
+  --primary: #ff4551;
+  --primary-hover: #ff5f6a;
+  --primary-soft: #3a161b;
+  --on-primary: #ffffff;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px rgb(0 0 0 / 0.4);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-onprimary: var(--on-primary);
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow-soft: var(--shadow);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.container-x {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+@media (min-width: 640px) {
+  .container-x { padding-inline: 1.5rem; }
+}
+
+::selection {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* thanh cuộn gọn */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+/* Hiệu ứng */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-fade-up { animation: fade-up 0.5s ease both; }
+.animate-pop { animation: pop 0.2s ease both; }
+.animate-float { animation: float-y 5s ease-in-out infinite; }
+.animate-slide-in { animation: slide-in 0.25s ease both; }
+
+/* Thanh trượt giá 2 đầu */
+.dual-range { position: relative; height: 28px; }
+.dual-range input[type="range"] {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.dual-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 4px solid var(--primary);
+  cursor: grab;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+}
+.dual-range input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 4px solid var(--primary);
+  cursor: grab;
+}
+.dual-range input[type="range"]::-webkit-slider-runnable-track { background: transparent; }
+.dual-range input[type="range"]::-moz-range-track { background: transparent; }
+
+/* Chữ khổng lồ mờ phía sau hero */
+.ghost-text {
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 22%, transparent), transparent 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { scrollbar-width: none; }
+
+input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
+.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+.dark input[type="date"] { color-scheme: dark; }
+
+/* Banner trình diễn xe */
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes hero-streak {
+  from { transform: translateX(-120%); opacity: 0; }
+  20% { opacity: 1; }
+  to { transform: translateX(420%); opacity: 0; }
+}
+.hero-float { animation: hero-float 5.5s ease-in-out infinite; }
+.hero-streak { animation: hero-streak 3.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-float, .hero-streak, .animate-float, .animate-fade-up { animation: none; }
+}
