@@ -1,10 +1,13 @@
 package com.carrenting.car_renting.controller;
 
 import com.carrenting.car_renting.dao.admindao;
+import com.carrenting.car_renting.dao.auditlogdao;
 import com.carrenting.car_renting.model.admin;
+import com.carrenting.car_renting.model.auditlog;
+import com.carrenting.car_renting.util.auditlogger;
+import com.carrenting.car_renting.util.passwordutil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,11 +17,19 @@ import java.util.List;
 public class admincontroller {
 
     private final admindao adminDao;
-    private final PasswordEncoder passwordEncoder;
+    private final passwordutil passwordUtil;
+    private final auditlogger auditLogger;
+    private final auditlogdao auditLogDao;
 
-    public admincontroller(admindao adminDao, PasswordEncoder passwordEncoder) {
+    public admincontroller(
+            admindao adminDao,
+            passwordutil passwordUtil,
+            auditlogger auditLogger,
+            auditlogdao auditLogDao) {
         this.adminDao = adminDao;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordUtil = passwordUtil;
+        this.auditLogger = auditLogger;
+        this.auditLogDao = auditLogDao;
     }
 
     @GetMapping
@@ -35,8 +46,13 @@ public class admincontroller {
 
     @PostMapping
     public ResponseEntity<admin> createAdmin(@RequestBody admin newAdmin) {
-        newAdmin.setPasswordHash(passwordEncoder.encode(newAdmin.getPasswordHash()));
+        if (newAdmin.getPasswordHash() == null || newAdmin.getPasswordHash().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        newAdmin.setPasswordHash(passwordUtil.hashPassword(newAdmin.getPasswordHash()));
         admin saved = adminDao.save(newAdmin);
+        auditLogger.logCurrentAdmin("CREATE_ADMIN", "ADMIN", String.valueOf(saved.getUserId()),
+                "Created admin " + saved.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -44,11 +60,20 @@ public class admincontroller {
     public ResponseEntity<admin> updateAdmin(@PathVariable Integer id, @RequestBody admin updated) {
         return adminDao.findById(id)
                 .map(existing -> {
-                    existing.setFullName(updated.getFullName());
-                    existing.setEmail(updated.getEmail());
-                    existing.setPhoneNumber(updated.getPhoneNumber());
+                    if (updated.getFullName() != null) {
+                        existing.setFullName(updated.getFullName());
+                    }
+                    if (updated.getEmail() != null) {
+                        existing.setEmail(updated.getEmail());
+                    }
+                    if (updated.getPhoneNumber() != null) {
+                        existing.setPhoneNumber(updated.getPhoneNumber());
+                    }
                     existing.setActive(updated.isActive());
-                    return ResponseEntity.ok(adminDao.save(existing));
+                    admin saved = adminDao.save(existing);
+                    auditLogger.logCurrentAdmin("UPDATE_ADMIN", "ADMIN", String.valueOf(id),
+                            "Updated admin " + saved.getEmail());
+                    return ResponseEntity.ok(saved);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -59,6 +84,12 @@ public class admincontroller {
             return ResponseEntity.notFound().build();
         }
         adminDao.deleteById(id);
+        auditLogger.logCurrentAdmin("DELETE_ADMIN", "ADMIN", String.valueOf(id), "Deleted admin");
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/audit-logs")
+    public List<auditlog> getAuditLogs() {
+        return auditLogDao.findAllByOrderByCreatedAtDesc();
     }
 }

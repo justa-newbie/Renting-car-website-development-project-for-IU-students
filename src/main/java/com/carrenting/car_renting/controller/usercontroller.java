@@ -2,6 +2,7 @@ package com.carrenting.car_renting.controller;
 
 import com.carrenting.car_renting.dao.userdao;
 import com.carrenting.car_renting.model.user;
+import com.carrenting.car_renting.util.auditlogger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,11 @@ import java.util.List;
 public class usercontroller {
 
     private final userdao userDao;
+    private final auditlogger auditLogger;
 
-    public usercontroller(userdao userDao) {
+    public usercontroller(userdao userDao, auditlogger auditLogger) {
         this.userDao = userDao;
+        this.auditLogger = auditLogger;
     }
 
     @GetMapping
@@ -41,7 +44,10 @@ public class usercontroller {
         return userDao.findById(id)
                 .map(existing -> {
                     existing.setActive(active);
-                    return ResponseEntity.ok(userDao.save(existing));
+                    user saved = userDao.save(existing);
+                    auditLogger.logCurrentAdmin("UPDATE_USER_STATUS", "USER", String.valueOf(id),
+                            "Set active=" + active);
+                    return ResponseEntity.ok(saved);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -52,6 +58,7 @@ public class usercontroller {
             return ResponseEntity.notFound().build();
         }
         userDao.deleteById(id);
+        auditLogger.logCurrentAdmin("DELETE_USER", "USER", String.valueOf(id), "Deleted user");
         return ResponseEntity.noContent().build();
     }
 }

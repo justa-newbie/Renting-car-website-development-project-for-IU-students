@@ -1,5 +1,7 @@
 package com.carrenting.car_renting.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -12,6 +14,7 @@ public class driverlicense {
     @Column(name = "license_id")
     private Integer licenseId;
 
+    @JsonBackReference
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private renter renter;
@@ -31,6 +34,7 @@ public class driverlicense {
     @Column(name = "verification_status", nullable = false)
     private String verificationStatus = "PENDING";
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "verified_by")
     private admin verifiedBy;
