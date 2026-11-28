@@ -35,6 +35,9 @@ public class rentercontroller {
 
     @PostMapping
     public ResponseEntity<renter> createRenter(@RequestBody renter newRenter) {
+        if (newRenter.getPasswordHash() == null || newRenter.getPasswordHash().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
         newRenter.setPasswordHash(passwordUtil.hashPassword(newRenter.getPasswordHash()));
         renter saved = renterDao.save(newRenter);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -44,9 +47,15 @@ public class rentercontroller {
     public ResponseEntity<renter> updateRenter(@PathVariable Integer id, @RequestBody renter updated) {
         return renterDao.findById(id)
                 .map(existing -> {
-                    existing.setFullName(updated.getFullName());
-                    existing.setEmail(updated.getEmail());
-                    existing.setPhoneNumber(updated.getPhoneNumber());
+                    if (updated.getFullName() != null) {
+                        existing.setFullName(updated.getFullName());
+                    }
+                    if (updated.getEmail() != null) {
+                        existing.setEmail(updated.getEmail());
+                    }
+                    if (updated.getPhoneNumber() != null) {
+                        existing.setPhoneNumber(updated.getPhoneNumber());
+                    }
                     existing.setActive(updated.isActive());
                     return ResponseEntity.ok(renterDao.save(existing));
                 })

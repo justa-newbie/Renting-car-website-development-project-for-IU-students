@@ -46,6 +46,9 @@ public class admincontroller {
 
     @PostMapping
     public ResponseEntity<admin> createAdmin(@RequestBody admin newAdmin) {
+        if (newAdmin.getPasswordHash() == null || newAdmin.getPasswordHash().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
         newAdmin.setPasswordHash(passwordUtil.hashPassword(newAdmin.getPasswordHash()));
         admin saved = adminDao.save(newAdmin);
         auditLogger.logCurrentAdmin("CREATE_ADMIN", "ADMIN", String.valueOf(saved.getUserId()),
@@ -57,9 +60,15 @@ public class admincontroller {
     public ResponseEntity<admin> updateAdmin(@PathVariable Integer id, @RequestBody admin updated) {
         return adminDao.findById(id)
                 .map(existing -> {
-                    existing.setFullName(updated.getFullName());
-                    existing.setEmail(updated.getEmail());
-                    existing.setPhoneNumber(updated.getPhoneNumber());
+                    if (updated.getFullName() != null) {
+                        existing.setFullName(updated.getFullName());
+                    }
+                    if (updated.getEmail() != null) {
+                        existing.setEmail(updated.getEmail());
+                    }
+                    if (updated.getPhoneNumber() != null) {
+                        existing.setPhoneNumber(updated.getPhoneNumber());
+                    }
                     existing.setActive(updated.isActive());
                     admin saved = adminDao.save(existing);
                     auditLogger.logCurrentAdmin("UPDATE_ADMIN", "ADMIN", String.valueOf(id),
